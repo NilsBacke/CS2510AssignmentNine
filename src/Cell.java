@@ -34,25 +34,24 @@ class Cell {
     this.bottom = null;
   }
   
+  // floods each of the cell's neighbors
   void flood(String prevColor) {
-    this.flooded = true;
     floodNeighbor(left, prevColor);
     floodNeighbor(top, prevColor);
     floodNeighbor(right, prevColor);
     floodNeighbor(bottom, prevColor);
   }
   
+  // if this neighbor exists and it was part of the "active flood zone," 
+  // then change its color and flood it as well
   void floodNeighbor(Cell neighbor, String prevColor) {
     if (neighbor != null && neighbor.color.equals(prevColor)) {
       neighbor.color = this.color;
-      if (neighbor.flooded) {
-        neighbor.flood(prevColor);
-      } else {
-        neighbor.flooded = true;
-      }
+      neighbor.flood(prevColor);
     }
   }
 
+  // initializes all of the neighbors of this cell with the given board
   void setNeighbors(ArrayList<ArrayList<Cell>> board) {
     if (this.i == 0) {
       this.left = null;
@@ -83,6 +82,7 @@ class Cell {
     }
   }
 
+  // converts the given string to a color object
   Color getColor(String color) {
     Color ccolor = Color.RED;
     switch (color) {
@@ -105,10 +105,12 @@ class Cell {
     return ccolor;
   }
 
+  // returns a WorldImage that represents this cell
   WorldImage getImage() {
     return new RectangleImage(SIZE, SIZE, "solid", this.getColor(this.color));
   }
 
+  // adds this cell's WorldImage to the given scene
   void addToScene(WorldScene scene) {
     scene.placeImageXY(this.getImage(), this.x + SIZE / 2, this.y + SIZE / 2);
   }
