@@ -9,10 +9,11 @@ class Cell {
   // In logical coordinates, with the origin at the top-left corner of the screen
   int x;
   int y;
-  int i; // the indecies of the cell in the board 2D arraylist
+  int i; // the indices of the cell in the board 2D arraylist
   int j;
   String color;
   boolean flooded;
+  boolean visited;
 
   // the four adjacent cells to this one
   Cell left;
@@ -28,6 +29,7 @@ class Cell {
     this.j = j;
     this.color = color;
     this.flooded = false;
+    this.visited = false;
     this.left = null;
     this.top = null;
     this.right = null;
@@ -45,9 +47,19 @@ class Cell {
   // if this neighbor exists and it was part of the "active flood zone," 
   // then change its color and flood it as well
   void floodNeighbor(Cell neighbor, String prevColor) {
-    if (neighbor != null && neighbor.color.equals(prevColor)) {
-      neighbor.color = this.color;
-      neighbor.flood(prevColor);
+    // is neighbor not an edge and not yet visited?
+    if ((neighbor != null) && (!neighbor.visited)) {
+      neighbor.visited = true;
+      if (neighbor.color.equals(prevColor)) {
+        if (neighbor.flooded) {
+          neighbor.color = color;
+          neighbor.flood(prevColor);
+        } else {
+          neighbor.flooded = true;
+        }
+      } else if (neighbor.flooded) {
+          neighbor.flood(prevColor);
+      }
     }
   }
 
@@ -55,8 +67,7 @@ class Cell {
   void setNeighbors(ArrayList<ArrayList<Cell>> board) {
     if (this.i == 0) {
       this.left = null;
-    }
-    else {
+    } else {
       this.left = board.get(i - 1).get(j);
     }
 

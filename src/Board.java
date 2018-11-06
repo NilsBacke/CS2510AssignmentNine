@@ -85,7 +85,28 @@ public class Board {
   
   // floods the board given the previous color of the top left cell
   void flood(String prevColor) {
-    board.get(0).get(0).flood(prevColor);
+    clearVisiting();
+    Cell corner = board.get(0).get(0);
+    corner.visited = true;
+    corner.flood(prevColor);
+  }
+  
+  // sets the flooded boolean of all Cells to false
+  void clearFlooding() {
+    for (int i = 0; i < this.size; i++) {
+      for (int j = 0; j < this.size; j++) {
+        board.get(i).get(j).flooded = false;
+      }
+    }
+  }
+
+  // sets the visited boolean of all Cells to false
+  void clearVisiting() {
+    for (int i = 0; i < this.size; i++) {
+      for (int j = 0; j < this.size; j++) {
+        board.get(i).get(j).visited = false;
+      }
+    }
   }
   
   // returns true if all of the cells in the board have the same color
