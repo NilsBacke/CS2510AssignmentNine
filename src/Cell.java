@@ -11,7 +11,7 @@ class Cell {
   int y;
   int i; // the indices of the cell in the board 2D arraylist
   int j;
-  String color;
+  Color color;
   boolean flooded;
   boolean visited;
 
@@ -22,7 +22,7 @@ class Cell {
   Cell bottom;
 
   // creates a new Cell object
-  Cell(int x, int y, int i, int j, String color) {
+  Cell(int x, int y, int i, int j, Color color) {
     this.x = x;
     this.y = y;
     this.i = i;
@@ -35,18 +35,18 @@ class Cell {
     this.right = null;
     this.bottom = null;
   }
-  
-  // floods each of the cell's neighbors
-  void flood(String prevColor) {
+
+  // EFFECT: floods each of the cell's neighbors
+  void flood(Color prevColor) {
     floodNeighbor(left, prevColor);
     floodNeighbor(top, prevColor);
     floodNeighbor(right, prevColor);
     floodNeighbor(bottom, prevColor);
   }
-  
-  // if this neighbor exists and it was part of the "active flood zone," 
-  // then change its color and flood it as well
-  void floodNeighbor(Cell neighbor, String prevColor) {
+
+  // EFFECT: possibly change neighbor flooded boolean or color,
+  // as well as having them flood their neighbors
+  void floodNeighbor(Cell neighbor, Color prevColor) {
     // is neighbor not an edge and not yet visited?
     if ((neighbor != null) && (!neighbor.visited)) {
       neighbor.visited = true;
@@ -58,12 +58,12 @@ class Cell {
           neighbor.flooded = true;
         }
       } else if (neighbor.flooded) {
-          neighbor.flood(prevColor);
+        neighbor.flood(prevColor);
       }
     }
   }
 
-  // initializes all of the neighbors of this cell with the given board
+  // EFFECT: initializes all of the neighbors of this cell with the given board
   void setNeighbors(ArrayList<ArrayList<Cell>> board) {
     if (this.i == 0) {
       this.left = null;
@@ -93,35 +93,12 @@ class Cell {
     }
   }
 
-  // converts the given string to a color object
-  Color getColor(String color) {
-    Color ccolor = Color.RED;
-    switch (color) {
-    case "red":
-      ccolor = Color.RED;
-      break;
-    case "orange":
-      ccolor = Color.ORANGE;
-      break;
-    case "yellow":
-      ccolor = Color.YELLOW;
-      break;
-    case "blue":
-      ccolor = Color.BLUE;
-      break;
-    case "green":
-      ccolor = Color.GREEN;
-      break;
-    }
-    return ccolor;
-  }
-
   // returns a WorldImage that represents this cell
   WorldImage getImage() {
-    return new RectangleImage(SIZE, SIZE, "solid", this.getColor(this.color));
+    return new RectangleImage(SIZE, SIZE, "solid", this.color);
   }
 
-  // adds this cell's WorldImage to the given scene
+  // EFFECT: adds this cell's WorldImage to the given scene
   void addToScene(WorldScene scene) {
     scene.placeImageXY(this.getImage(), this.x + SIZE / 2, this.y + SIZE / 2);
   }
