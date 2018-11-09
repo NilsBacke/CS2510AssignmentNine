@@ -19,7 +19,7 @@ public class FloodItWorld extends World {
   // create a new FloodItWorld
   FloodItWorld() {
     turns = 0;
-    board = new Board(BOARD_SIZE, 5);
+    board = new Board(BOARD_SIZE);
     prevColor = board.getTopLeftColor();
   }
 
