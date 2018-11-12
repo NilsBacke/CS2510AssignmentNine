@@ -23,6 +23,13 @@ public class FloodItWorld extends World {
     prevColor = board.getTopLeftColor();
   }
 
+  // create a new FloodItWorld with seed
+  FloodItWorld(int seed) {
+    turns = 0;
+    board = new Board(BOARD_SIZE, seed);
+    prevColor = board.getTopLeftColor();
+  }
+
   // produces the image of this world
   public WorldScene makeScene() {
     return this.board.render(this);
@@ -92,7 +99,7 @@ class FloodItExamples {
   Board board2;
   FloodItWorld world;
 
-  // reset the test conditions
+  // EFFECT: reset the test conditions
   void reset() {
     seed = 5;
     size = 10;
@@ -108,7 +115,7 @@ class FloodItExamples {
     }
     board2 = new Board(list);
 
-    world = new FloodItWorld();
+    world = new FloodItWorld(5);
   }
 
   // test the getClickedCell method
@@ -193,46 +200,122 @@ class FloodItExamples {
     t.checkExpect(topLeft.getImage(), new RectangleImage(20, 20, "solid", Color.YELLOW));
   }
 
-  // test the addToScene method
-  void testAddToScene(Tester t) {
+  // test the clearFlooding method
+  void testClearFlooding(Tester t) {
     reset();
-    Cell topLeft = board1.board.get(0).get(0);
-    Cell bottomRight = board1.board.get(board1.size - 1).get(board1.size - 1);
-    Cell bottomLeft = board1.board.get(0).get(board1.size - 1);
-    Cell topRight = board1.board.get(board1.size - 1).get(0);
 
-    WorldScene testScene = world.getEmptyScene();
-    WorldScene referenceScene = world.getEmptyScene();
+    t.checkExpect(board2.board.get(0).get(0).flooded, false);
+    t.checkExpect(board2.board.get(0).get(1).flooded, false);
+    t.checkExpect(board2.board.get(1).get(0).flooded, false);
+    t.checkExpect(board2.board.get(1).get(1).flooded, false);
 
-    topLeft.addToScene(testScene);
-    referenceScene.placeImageXY(new RectangleImage(20, 20, "solid", Color.YELLOW),
-        Cell.SIZE / 2, Cell.SIZE / 2);
-    t.checkExpect(testScene, referenceScene);
+    board2.board.get(0).get(0).flooded = true;
+    board2.board.get(0).get(1).flooded = true;
+    board2.board.get(1).get(0).flooded = true;
+    board2.board.get(1).get(1).flooded = true;
 
-    bottomRight.addToScene(testScene);
-    referenceScene.placeImageXY(new RectangleImage(20, 20, "solid", Color.RED),
-        (board1.size * Cell.SIZE) + (Cell.SIZE / 2),
-        (board1.size * Cell.SIZE) + (Cell.SIZE / 2));
-    t.checkExpect(testScene, referenceScene);
+    t.checkExpect(board2.board.get(0).get(0).flooded, true);
+    t.checkExpect(board2.board.get(0).get(1).flooded, true);
+    t.checkExpect(board2.board.get(1).get(0).flooded, true);
+    t.checkExpect(board2.board.get(1).get(1).flooded, true);
 
-    bottomLeft.addToScene(testScene);
-    referenceScene.placeImageXY(new RectangleImage(20, 20, "solid", Color.RED),
-        Cell.SIZE / 2, (board1.size * Cell.SIZE) + (Cell.SIZE / 2));
-    t.checkExpect(testScene, referenceScene);
+    board2.clearFlooding();
 
-    topRight.addToScene(testScene);
-    referenceScene.placeImageXY(new RectangleImage(20, 20, "solid", Color.BLUE),
-        (board1.size * Cell.SIZE) + (Cell.SIZE / 2), Cell.SIZE / 2);
-    t.checkExpect(testScene, referenceScene);
+    t.checkExpect(board2.board.get(0).get(0).flooded, false);
+    t.checkExpect(board2.board.get(0).get(1).flooded, false);
+    t.checkExpect(board2.board.get(1).get(0).flooded, false);
+    t.checkExpect(board2.board.get(1).get(1).flooded, false);
   }
 
-  // test the makeScene method
-  void testMakeScene(Tester t) {
+  // test the clearVisiting method
+  void testClearVisiting(Tester t) {
     reset();
+
+    t.checkExpect(board2.board.get(0).get(0).visited, false);
+    t.checkExpect(board2.board.get(0).get(1).visited, false);
+    t.checkExpect(board2.board.get(1).get(0).visited, false);
+    t.checkExpect(board2.board.get(1).get(1).visited, false);
+
+    board2.board.get(0).get(0).visited = true;
+    board2.board.get(0).get(1).visited = true;
+    board2.board.get(1).get(0).visited = true;
+    board2.board.get(1).get(1).visited = true;
+
+    t.checkExpect(board2.board.get(0).get(0).visited, true);
+    t.checkExpect(board2.board.get(0).get(1).visited, true);
+    t.checkExpect(board2.board.get(1).get(0).visited, true);
+    t.checkExpect(board2.board.get(1).get(1).visited, true);
+
+    board2.clearVisiting();
+
+    t.checkExpect(board2.board.get(0).get(0).visited, false);
+    t.checkExpect(board2.board.get(0).get(1).visited, false);
+    t.checkExpect(board2.board.get(1).get(0).visited, false);
+    t.checkExpect(board2.board.get(1).get(1).visited, false);
+  }
+
+  // test the onTick method
+  void testOnTick(Tester t) {
+    reset();
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.YELLOW);
+    t.checkExpect(world.board.board.get(0).get(1).color, Color.YELLOW);
+
+    world.onMouseClicked(new Posn(Cell.SIZE, 0));
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.BLUE);
+    t.checkExpect(world.board.board.get(0).get(1).color, Color.YELLOW);
+
+    world.onTick();
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.BLUE);
+    t.checkExpect(world.board.board.get(0).get(1).color, Color.BLUE);
+  }
+
+  // test the worldEnds method
+  void testWorldEnds(Tester t) {
+    reset();
+    t.checkExpect(world.worldEnds(), new WorldEnd(false, world.makeScene()));
+
+    world.turns = world.MAX_TURNS;
+    t.checkExpect(world.worldEnds(), new WorldEnd(true, world.lastScene("YOU LOSE")));
+
+    world.turns = 0;
+    for (int i = 0; i < world.board.size; ++i) {
+      for (int j = 0; j < world.board.size; ++j) {
+        world.board.board.get(i).get(j).color = Color.YELLOW;
+      }
+    }
+
+    t.checkExpect(world.worldEnds(), new WorldEnd(true, world.lastScene("YOU WIN")));
+  }
+
+  // test the onKeyEvent method
+  void testOnKeyEvent(Tester t) {
+    reset();
+    world.turns = 4;
+    world.onKeyEvent("a");
+    t.checkExpect(world.turns, 4);
+    world.onKeyEvent("r");
+    t.checkExpect(world.turns, 0);
+  }
+
+  // test the onMouseClicked method
+  void testOnMouseClicked(Tester t) {
+    reset();
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.YELLOW);
+
+    world.onMouseClicked(new Posn(0, FloodItWorld.WINDOW_HEIGHT));
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.YELLOW);
+
+    world.onMouseClicked(new Posn(0, 0));
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.YELLOW);
+
+    world.onMouseClicked(new Posn(Cell.SIZE, 0));
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.BLUE);
+
+    world.onMouseClicked(new Posn(Cell.SIZE * 2, 0));
+    t.checkExpect(world.board.board.get(0).get(0).color, Color.ORANGE);
   }
 
   public static void main(String[] argv) {
-
     // run the game
     FloodItWorld w = new FloodItWorld();
     w.bigBang(FloodItWorld.WINDOW_WIDTH, FloodItWorld.WINDOW_HEIGHT, 0.05);
